@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>T-2 Primerjava</title>
+<meta name="theme-color" content="#16181d">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{--ink:#16181d;--mute:#6b7080;--line:#e2e4ea;--bg:#f6f7f9;--acc:#e8590c;--ok:#1b7f4a;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px}
+  header{padding:14px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px}
+  header h1{font-size:17px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media (max-width:520px){header h1{display:none}.tabs{flex:1}.tabs button{flex:1;padding:8px 4px}}
+  .tabs{display:flex;gap:6px}
+  .tabs button{border:1px solid var(--line);background:#fff;padding:8px 12px;border-radius:8px;font-weight:600;font-size:14px}
+  .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  main{max-width:760px;margin:0 auto;padding:12px}
+  section.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  section.card h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+  label{display:block;font-size:13px;color:var(--mute);margin:8px 0 4px}
+  input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:16px;background:#fff;color:var(--ink)}
+  .row{display:grid;grid-template-columns:1fr 110px 36px;gap:6px;margin-bottom:6px;align-items:center}
+  .row input.price{text-align:right}
+  .x{border:none;background:#f1f2f5;border-radius:8px;height:40px;font-size:18px;color:var(--mute)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+  .chip{border:1px solid var(--line);background:#fafbfc;border-radius:999px;padding:7px 11px;font-size:13px}
+  .chip small{color:var(--mute)}
+  .add{border:1px dashed #b9bdc8;background:none;border-radius:8px;padding:9px;width:100%;color:var(--mute);font-size:14px}
+  .pk{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .pk button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 4px;text-align:center}
+  .pk button b{display:block;font-size:14px}
+  .pk button span{font-size:13px;color:var(--mute)}
+  .pk button.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+  .cnt{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f1f4}
+  .step{display:flex;align-items:center;gap:6px}
+  .step button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px}
+  .step output{min-width:22px;text-align:center;font-weight:700}
+  .sum{display:flex;justify-content:space-between;font-weight:700;padding-top:8px}
+  .big{font-size:22px;color:var(--ok)}
+  .bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;align-items:center}
+  .bar .tot{flex:1;font-size:13px;color:var(--mute)}
+  .bar .tot b{display:block;font-size:18px;color:var(--ok)}
+  .bar .tot b.neg{color:#c92a2a}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:700;font-size:15px}
+  .btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .note{font-size:12px;color:var(--mute);margin-top:6px}
+  #msg{font-size:13px;margin-top:8px}
+  /* customer view */
+  #show,#cheat{display:none}
+  #show{max-width:1100px}
+  .sv{display:grid;gap:12px}
+  @media (min-width:820px){.sv{grid-template-columns:1fr 1fr}.sv .wide{grid-column:1/-1}}
+  .sv .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+  .sv .lbl{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+  .sv .amt{font-size:40px;font-weight:800;letter-spacing:-.02em;margin-top:4px}
+  .sv .amt small{font-size:18px;font-weight:600;color:var(--mute)}
+  .sv .hero{background:var(--ok);color:#fff;border:none;text-align:center;padding:26px 20px}
+  .sv .hero .lbl{color:rgba(255,255,255,.85)}
+  .sv .hero .amt{font-size:64px}
+  .sv .hero .amt small{color:rgba(255,255,255,.85)}
+  .sv .hero.neg{background:#c92a2a}
+  .sv .eq{font-size:20px;margin-top:10px;font-weight:600}
+  .sv .vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .sv .bars{display:flex;gap:18px;align-items:flex-end;height:180px;margin-top:14px}
+  .sv .bars div{flex:1;border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:center;color:#fff;font-weight:800;font-size:18px;padding-top:8px;min-height:44px}
+  .sv .bl{display:flex;gap:18px;margin-top:6px;font-weight:700;text-align:center}
+  .sv .bl span{flex:1}
+  .sv ul{margin:8px 0 0;padding-left:20px;font-size:16px;line-height:1.6}
+  .sv .line{display:flex;justify-content:space-between;font-size:18px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .sv .line>*:last-child{white-space:nowrap;padding-left:12px}
+  .sv .amt{white-space:nowrap}
+  @media (max-width:420px){.sv .hero .amt{font-size:52px}}
+  .sv .line:last-child{border:none;font-weight:800;font-size:22px}
+  .empty{text-align:center;color:var(--mute);padding:60px 20px;font-size:16px}
+  /* cheat sheet */
+  #cheat details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:0 14px}
+  #cheat summary{font-weight:700;padding:14px 0;cursor:pointer;font-size:16px}
+  #cheat details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+  #cheat .c{padding-bottom:14px;font-size:15px;line-height:1.5}
+  #cheat table{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0}
+  #cheat th,#cheat td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+  #cheat th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase}
+  #cheat .q{background:#f6f7f9;border-left:3px solid var(--acc);padding:8px 10px;margin:8px 0;border-radius:4px}
+  #cheat .warn{background:#fff4e6;border-left:3px solid var(--acc);padding:8px 10px;border-radius:4px;margin:8px 0}
+  #cheat ul,#cheat ol{padding-left:20px;margin:6px 0}
+  #cheat a{color:var(--acc)}
+  .bar{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  /* preview */
+  #prev{display:none}
+  .pagewrap{width:100%;overflow:hidden;margin-bottom:12px;background:#ccc;border-radius:6px}
+  .sheet{width:794px;height:1123px;background:#fff;color:#000;padding:56px 56px 48px;font-family:Arial,Helvetica,sans-serif;transform-origin:0 0;position:relative}
+  .sheet h3{font-size:30px;margin:0 0 4px}
+  .sheet .sub{font-size:16px;margin-bottom:22px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;border:3px solid #000}
+  .cols>div{padding:16px}
+  .cols>div+div{border-left:3px solid #000}
+  .cols .hd{font-size:24px;font-weight:800;border-bottom:3px solid #000;padding-bottom:8px;margin-bottom:8px;text-transform:uppercase}
+  .it{display:flex;justify-content:space-between;gap:10px;font-size:17px;padding:6px 0;border-bottom:1px solid #000}
+  .it .n{flex:1}
+  .it .p{white-space:nowrap;font-weight:700}
+  .incl{font-size:14px;margin-top:10px;line-height:1.45}
+  .ct{display:flex;justify-content:space-between;font-size:22px;font-weight:800;border-top:3px solid #000;margin-top:10px;padding-top:8px}
+  .save{border:3px solid #000;margin-top:18px;padding:14px 18px}
+  .save .l{display:flex;justify-content:space-between;font-size:20px;padding:4px 0}
+  .save .l.hl{font-size:30px;font-weight:900}
+  .foot{position:absolute;left:56px;right:56px;bottom:40px;font-size:12px;border-top:1px solid #000;padding-top:8px;display:flex;justify-content:space-between;gap:20px}
+  table.mt{width:100%;border-collapse:collapse;font-size:15px}
+  table.mt th,table.mt td{border:1.5px solid #000;padding:5px 8px;text-align:right}
+  table.mt th{font-size:14px;text-transform:uppercase}
+  table.mt td:first-child,table.mt th:first-child{text-align:center}
+  table.mt tr.s td{font-weight:800;font-size:17px;border-top:3px solid #000}
+  .net{margin-top:16px;font-size:20px}
+  .net .l{display:flex;justify-content:space-between;padding:5px 0}
+  .net .fin{font-size:32px;font-weight:900;text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>T-2 Primerjava</h1>
+  <div class="tabs"><button id="tEdit" class="on">Vnos</button><button id="tShow">Stranki</button><button id="tPrev">List A4</button><button id="tCheat">Plonkec</button></div>
+</header>
+
+<main id="edit">
+  <section class="card">
+    <h2>Stranka</h2>
+    <div class="grid2">
+      <div><label>Ime (neobvezno)</label><input id="cName" placeholder="npr. Novak"></div>
+      <div><label>Trenutni operater</label>
+        <select id="op"><option>Telekom</option><option>Telemach</option><option>A1</option><option>Drugo</option></select></div>
+    </div>
+    <div id="opOtherW" style="display:none"><label>Ime operaterja</label><input id="opOther"></div>
+  </section>
+
+  <section class="card">
+    <h2>Kaj ima zdaj (s položnice)</h2>
+    <div class="chips" id="presets"></div>
+    <div id="curRows"></div>
+    <button class="add" id="addCur">+ dodaj postavko</button>
+    <div class="sum"><span>Skupaj zdaj / mesec</span><span id="curTot">0,00 €</span></div>
+    <p class="note">Hitri gumbi vpišejo <b>redno</b> ceno paketa. Ceno vedno popravi po položnici – stranka je lahko še v akciji.</p>
+  </section>
+
+  <section class="card">
+    <h2>Vezava pri trenutnem operaterju</h2>
+    <div class="grid2">
+      <div><label>Mesecev do konca vezave</label><input id="months" type="number" inputmode="numeric" min="0" max="24" placeholder="0 = ni vezave"></div>
+      <div><label>Odstopni strošek (€)</label><input id="penalty" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+    </div>
+    <label>Strošek prekrivanja v 1. mesecu (€, neobvezno)</label><input id="overlap" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0">
+  </section>
+
+  <section class="card">
+    <h2>Ponudba T-2</h2>
+    <div class="pk" id="pk"></div>
+    <div id="extras" style="margin-top:10px"></div>
+    <label>TV opcije</label>
+    <div class="chips" id="tvopts"></div>
+    <div id="t2Rows"></div>
+    <button class="add" id="addT2">+ dodaj drugo postavko</button>
+    <div class="sum"><span>Skupaj T-2 / mesec</span><span id="t2Tot">0,00 €</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Tvoji podatki na listu</h2>
+    <div class="grid2">
+      <div><label>Svetovalec</label><input id="rep" placeholder="Ime Priimek"></div>
+      <div><label>Telefon</label><input id="repTel" inputmode="tel" placeholder="040 …"></div>
+    </div>
+    <p class="note">Ostane shranjeno na tej napravi.</p>
+  </section>
+
+  <section class="card">
+    <h2>Cenik T-2 (uredi, če se cene spremenijo)</h2>
+    <details><summary style="cursor:pointer;color:var(--mute)">Pokaži cenik</summary><div id="priceEd"></div>
+    <button class="add" id="resetPrices" style="margin-top:8px">Ponastavi na cenik iz uvajalnega lista (1. 10. 2026)</button></details>
+  </section>
+</main>
+
+<main id="show"></main>
+<main id="cheat"></main>
+
+<main id="prev">
+  <div class="pagewrap" id="w1"><div class="sheet" id="p1"></div></div>
+  <div class="pagewrap" id="w2"><div class="sheet" id="p2"></div></div>
+</main>
+
+<div class="bar">
+  <div class="tot">Mesečni prihranek<b id="barSave">0,00 €</b></div>
+  <button class="btn alt" id="bReset">Nova</button>
+  <button class="btn" id="bPdf">Deli PDF</button>
+</div>
+<div id="msg" style="padding:0 12px 12px"></div>
+
+<script>
+const DEFAULT_PRICES = {
+  NAJS:34.99, EKSTRA:54.99, FUL:64.99,
+  Mini:5.99, Midi:7.49, Maxi:11.99,
+  App:2.99, Box:4.99,
+  "HBO Premium":10.99, "CineStar TV Premiere":5.99, "VOYO":7.99, "Pickbox NOW":5.99, "Minimax+":3.99,
+  "YUGO 60+":10.49, "Pink":8.99, "Grand Slam X":9.49, "RUS 5+":9.49, "Amor X":5.99, "Venus X":6.99
+};
+const PKG = {
+  NAJS:{name:"NAJS", incl:["Internet do 1000/200 Mbps","180+ TV programov (L), ogled nazaj 7 dni","1× BOX, 1× TV2Go aplikacija","Stacionarna št., neomejeni klici v SLO"]},
+  EKSTRA:{name:"EKSTRA NAJS", incl:["Internet do 1000/500 Mbps","200+ TV programov (XL), ogled nazaj 7 dni","1× BOX, 3× TV2Go, videoteka Epic Drama","T-2 Ščit","Stacionarna št., neomejeni klici v SLO","1× Oranžni Maxi vključen (neomejeni podatki)"], maxi:1},
+  FUL:{name:"FUL NAJS", incl:["Internet do 1000/1000 Mbps","200+ TV programov (XL), ogled nazaj 7 dni","HBO Premium + CineStar TV Premiere","1× BOX, 3× TV2Go, videoteka Epic Drama","T-2 Ščit","Stacionarna št., neomejeni klici v SLO","2× Oranžni Maxi vključena (neomejeni podatki)"], maxi:2}
+};
+const PRESETS = {
+  Telekom:[["NEO A",49.00],["NEO B",58.00],["NEO C",63.00],["Net (samo internet)",39.00],["Mobilni paket",0]],
+  Telemach:[["EON Light",50.90],["EON Full",60.90],["EON Premium",74.90],["Mobilni paket",0]],
+  A1:[["A1 Komplet Basic",60.98],["A1 Komplet Standard",77.97],["Mobilni paket",0]],
+  Drugo:[["Fiksni paket",0],["Mobilni paket",0]]
+};
+const COMMON = [["Dodatni BOX",0],["TV opcija",0],["Najem opreme",0]];
+
+let P = load("t2prices", DEFAULT_PRICES);
+P = Object.assign({}, DEFAULT_PRICES, P);
+let S = blank();
+function blank(){return {cName:"",op:"Telekom",opOther:"",cur:[],months:"",penalty:"",overlap:"",pkg:"EKSTRA",mini:0,midi:0,maxi:0,app:0,box:0,tv:[],t2:[]};}
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+const $=id=>document.getElementById(id);
+const num=v=>{const n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:0;};
+const c=v=>Math.round(num(v)*100);           // to cents
+const eur=cents=>(cents<0?"−":"")+(Math.abs(cents)/100).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")+" €";
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+
+$("rep").value=load("rep",""); $("repTel").value=load("repTel","");
+$("rep").oninput=e=>save("rep",e.target.value); $("repTel").oninput=e=>save("repTel",e.target.value);
+
+function opName(){return S.op==="Drugo"?(S.opOther||"Trenutni operater"):S.op;}
+
+function t2Lines(){
+  const L=[]; const pk=PKG[S.pkg];
+  L.push([`T-2 ${pk.name}`, c(P[S.pkg])]);
+  if(pk.maxi) L.push([`${pk.maxi}× Oranžni Maxi (vključeno)`,0]);
+  [["maxi","Maxi"],["midi","Midi"],["mini","Mini"]].forEach(([k,n])=>{ if(S[k]>0) L.push([`${S[k]}× Oranžni ${n} (dodatno)`, S[k]*c(P[n])]); });
+  if(S.app>0) L.push([`${S.app}× dodatna TV aplikacija`, S.app*c(P.App)]);
+  if(S.box>0) L.push([`${S.box}× dodatni TV Smart BOX`, S.box*c(P.Box)]);
+  S.tv.forEach(t=>{ if(S.pkg==="FUL" && (t==="HBO Premium"||t==="CineStar TV Premiere")) return; L.push([t, c(P[t])]); });
+  S.t2.forEach(r=>{ if(r.n||num(r.p)) L.push([r.n||"Postavka", c(r.p)]); });
+  return L;
+}
+function curLines(){return S.cur.filter(r=>r.n||num(r.p)).map(r=>[r.n||"Postavka",c(r.p)]);}
+function calc(){
+  const cur=curLines().reduce((a,b)=>a+b[1],0), t2=t2Lines().reduce((a,b)=>a+b[1],0);
+  const m=Math.min(24,Math.max(0,Math.round(num(S.months))));
+  const H=m>0?m:24;
+  const pen=c(S.penalty), ov=c(S.overlap);
+  const monthly=cur-t2;
+  return {cur,t2,monthly,m,H,pen,ov,two:monthly*24,
+    sumCur:cur*H, sumT2:t2*H+ov, net:(cur*H)-(t2*H+ov)-pen};
+}
+
+function rowsUI(el,arr){
+  el.innerHTML="";
+  arr.forEach((r,i)=>{
+    const d=document.createElement("div"); d.className="row";
+    d.innerHTML=`<input placeholder="Opis" value="${esc(r.n)}"><input class="price" inputmode="decimal" placeholder="€" value="${esc(r.p)}"><button class="x">×</button>`;
+    const [n,p,x]=d.children;
+    n.oninput=()=>{r.n=n.value;upd();}; p.oninput=()=>{r.p=p.value;upd();};
+    x.onclick=()=>{arr.splice(i,1);render();};
+    el.appendChild(d);
+  });
+}
+function render(){
+  $("cName").value=S.cName; $("op").value=S.op; $("opOther").value=S.opOther;
+  $("opOtherW").style.display=S.op==="Drugo"?"block":"none";
+  $("months").value=S.months; $("penalty").value=S.penalty; $("overlap").value=S.overlap;
+  const pr=$("presets"); pr.innerHTML="";
+  [...PRESETS[S.op],...COMMON].forEach(([n,p])=>{
+    const b=document.createElement("button"); b.className="chip";
+    b.innerHTML=esc(n)+(p?` <small>${eur(c(p))}</small>`:"");
+    b.onclick=()=>{S.cur.push({n,p:p?String(p).replace(".",","):""});render();};
+    pr.appendChild(b);
+  });
+  rowsUI($("curRows"),S.cur); rowsUI($("t2Rows"),S.t2);
+  const pk=$("pk"); pk.innerHTML="";
+  Object.keys(PKG).forEach(k=>{
+    const b=document.createElement("button"); if(S.pkg===k)b.className="on";
+    b.innerHTML=`<b>${PKG[k].name}</b><span>${eur(c(P[k]))}</span>`;
+    b.onclick=()=>{S.pkg=k;render();}; pk.appendChild(b);
+  });
+  const ex=$("extras"); ex.innerHTML="";
+  [["maxi","Dodatni Oranžni Maxi",P.Maxi],["midi","Dodatni Oranžni Midi",P.Midi],["mini","Dodatni Oranžni Mini",P.Mini],["app","Dodatna TV aplikacija",P.App],["box","Dodatni TV Smart BOX",P.Box]].forEach(([k,n,p])=>{
+    const d=document.createElement("div"); d.className="cnt";
+    d.innerHTML=`<div>${n} <small style="color:var(--mute)">${eur(c(p))}</small></div><div class="step"><button>−</button><output>${S[k]}</output><button>+</button></div>`;
+    const bs=d.querySelectorAll("button");
+    bs[0].onclick=()=>{S[k]=Math.max(0,S[k]-1);render();}; bs[1].onclick=()=>{S[k]++;render();};
+    ex.appendChild(d);
+  });
+  const tv=$("tvopts"); tv.innerHTML="";
+  ["HBO Premium","CineStar TV Premiere","VOYO","Pickbox NOW","Minimax+","YUGO 60+","Pink","Grand Slam X","RUS 5+","Amor X","Venus X"].forEach(t=>{
+    const b=document.createElement("button"); b.className="chip";
+    const on=S.tv.includes(t), incl=S.pkg==="FUL"&&(t==="HBO Premium"||t==="CineStar TV Premiere");
+    if(on){b.style.background="#16181d";b.style.color="#fff";}
+    b.innerHTML=esc(t)+` <small>${incl?"vključeno":eur(c(P[t]))}</small>`;
+    b.onclick=()=>{S.tv=on?S.tv.filter(x=>x!==t):[...S.tv,t];render();};
+    tv.appendChild(b);
+  });
+  const pe=$("priceEd"); pe.innerHTML="";
+  Object.keys(DEFAULT_PRICES).forEach(k=>{
+    const d=document.createElement("div"); d.className="row"; d.style.gridTemplateColumns="1fr 110px";
+    const label={NAJS:"NAJS",EKSTRA:"EKSTRA NAJS",FUL:"FUL NAJS",Mini:"Oranžni Mini",Midi:"Oranžni Midi",Maxi:"Oranžni Maxi",App:"Dodatna TV aplikacija",Box:"Dodatni Smart BOX"}[k]||k;
+    d.innerHTML=`<div style="font-size:14px">${esc(label)}</div><input class="price" inputmode="decimal" value="${String(P[k]).replace(".",",")}">`;
+    d.querySelector("input").onchange=e=>{P[k]=num(e.target.value);save("t2prices",P);render();};
+    pe.appendChild(d);
+  });
+  upd();
+}
+function upd(){
+  const r=calc();
+  $("curTot").textContent=eur(r.cur); $("t2Tot").textContent=eur(r.t2);
+  const b=$("barSave"); b.textContent=eur(r.monthly); b.className=r.monthly<0?"neg":"";
+  save("state",S);
+  if(tab==="prev") sheets();
+}
+["cName","opOther","months","penalty","overlap"].forEach(id=>$(id).oninput=e=>{S[id]=e.target.value;upd();});
+$("op").onchange=e=>{S.op=e.target.value;render();};
+$("addCur").onclick=()=>{S.cur.push({n:"",p:""});render();};
+$("addT2").onclick=()=>{S.t2.push({n:"",p:""});render();};
+$("resetPrices").onclick=()=>{P=Object.assign({},DEFAULT_PRICES);save("t2prices",P);render();};
+$("bReset").onclick=()=>{S=blank();render();showTab("edit");};
+
+function sheets(){
+  const r=calc(), op=opName(), cur=curLines(), t2=t2Lines();
+  const date=new Date().toLocaleDateString("sl-SI");
+  const rep=$("rep").value, tel=$("repTel").value;
+  const items=L=>L.map(([n,p])=>`<div class="it"><span class="n">${esc(n)}</span><span class="p">${(p===0&&/vključen/.test(n))?"vključeno":eur(p)}</span></div>`).join("")||`<div class="it"><span class="n">—</span></div>`;
+  const foot=`<div class="foot"><div>Informativni izračun z dne ${date}. Cene z DDV. Akcijske cene T-2 veljajo ob 24-mesečni vezavi, nato velja redna cena po ceniku. Izračun pripravil svetovalec; ni uradni dokument T-2.</div><div style="text-align:right;white-space:nowrap"><b>${esc(rep)||"&nbsp;"}</b><br>${esc(tel)}</div></div>`;
+  const forWho=S.cName?`za: ${esc(S.cName)} · `:"";
+  $("p1").innerHTML=`
+    <h3>Primerjava stroškov</h3>
+    <div class="sub">${forWho}${date}</div>
+    <div class="cols">
+      <div><div class="hd">${esc(op)} – zdaj</div>${items(cur)}<div class="ct"><span>Skupaj</span><span>${eur(r.cur)}</span></div></div>
+      <div><div class="hd">T-2 – ${esc(PKG[S.pkg].name)}</div>${items(t2)}
+        <div class="incl"><b>Vključeno:</b><br>${PKG[S.pkg].incl.map(esc).join("<br>")}</div>
+        <div class="ct"><span>Skupaj</span><span>${eur(r.t2)}</span></div></div>
+    </div>
+    <div class="save">
+      <div class="l"><span>Prihranek na mesec</span><b>${eur(r.monthly)}</b></div>
+      <div class="l hl"><span>Prihranek v 2 letih</span><span>${eur(r.two)}</span></div>
+      ${r.m>0?`<div class="l"><span>Neto do konca vezave (${r.m} mes., po odbitku kazni)</span><b>${eur(r.net)}</b></div>`:""}
+    </div>${foot}`;
+  let rows="", cc=0, ct=0;
+  for(let i=1;i<=r.H;i++){
+    const a=r.cur, b=r.t2+(i===1?r.ov:0); cc+=a; ct+=b;
+    rows+=`<tr><td>${i}.</td><td>${eur(a)}</td><td>${eur(b)}</td><td>${eur(cc-ct)}</td></tr>`;
+  }
+  const fs=r.H>16?13:15, pad=r.H>16?"3px 8px":"5px 8px";
+  $("p2").innerHTML=`
+    <h3>Mesec za mesecem</h3>
+    <div class="sub">${r.m>0?`Do konca vezave pri ${esc(op)}: ${r.m} mesecev`:`Obdobje: 24 mesecev akcijske cene`}</div>
+    <table class="mt" style="font-size:${fs}px"><tr><th>Mesec</th><th>${esc(op)}</th><th>T-2</th><th>Prihranek skupaj</th></tr>
+    ${rows.replace(/<td>/g,`<td style="padding:${pad}">`)}
+    <tr class="s"><td>Σ</td><td>${eur(r.sumCur)}</td><td>${eur(r.sumT2)}</td><td>${eur(r.sumCur-r.sumT2)}</td></tr></table>
+    <div class="net">
+      <div class="l"><span>Prihranek v ${r.H} mesecih</span><b>${eur(r.sumCur-r.sumT2)}</b></div>
+      <div class="l"><span>Odstopni strošek ${esc(op)}</span><b>${r.pen?"− "+eur(r.pen):eur(0)}</b></div>
+      <div class="l" style="margin-top:8px"><span><b>Ostane vam v žepu</b></span><span class="fin">${eur(r.net)}</span></div>
+    </div>${foot}`;
+  fit();
+}
+
+function showView(){
+  const r=calc(), op=opName(), el=$("show");
+  if(!r.cur){ el.innerHTML=`<div class="empty">Najprej v <b>Vnos</b> vpiši, kaj stranka plačuje zdaj.</div>`; return; }
+  const pk=PKG[S.pkg], t2=t2Lines().filter(([n,p])=>p>0||/vključen/.test(n));
+  const max=Math.max(r.cur,r.t2,1), hCur=Math.round(150*r.cur/max), hT2=Math.round(150*r.t2/max);
+  const free=r.t2>0?Math.floor(r.two/r.t2):0;
+  let eq="";
+  if(r.monthly>0){
+    const bits=[];
+    if(free>=1) bits.push(`${free} ${free===1?"mesec":free===2?"meseca":free<5?"mesece":"mesecev"} T-2 paketa zastonj`);
+    if(r.two>=500) bits.push("podaljšan vikend na morju za dva");
+    if(bits.length) eq=`<div class="eq">To je kot ${bits.join(" ali ")}.</div>`;
+  }
+  let pen="";
+  if(r.m>0){
+    const back=r.monthly>0&&r.pen>0?Math.ceil(r.pen/r.monthly):0;
+    pen=`<div class="card wide"><div class="lbl">Če prekinete vezavo pri ${esc(op)} zdaj</div>
+      <div class="line"><span>Prihranek do konca vezave (${r.m} mes.)</span><b>${eur(r.sumCur-r.sumT2)}</b></div>
+      <div class="line"><span>Odstopni strošek</span><b>${r.pen?"− "+eur(r.pen):eur(0)}</b></div>
+      <div class="line"><span>Ostane vam v žepu</span><span style="color:${r.net<0?"#c92a2a":"var(--ok)"}">${eur(r.net)}</span></div>
+      ${back?`<p class="note" style="font-size:15px">Odstopni strošek se povrne v ${back}. mesecu. Vse po tem je čisti prihranek.</p>`:""}</div>`;
+  }
+  el.innerHTML=`<div class="sv">
+    <div class="card hero wide${r.monthly<0?" neg":""}">
+      <div class="lbl">${r.monthly<0?"T-2 je dražji za":"Prihranite"}</div>
+      <div class="amt">${eur(Math.abs(r.monthly))} <small>na mesec</small></div>
+      <div class="eq" style="font-size:26px">${eur(Math.abs(r.two))} v 2 letih</div>${eq}
+    </div>
+    <div class="card"><div class="lbl">Mesečno</div>
+      <div class="bars"><div style="height:${hCur}px;background:#868e96">${eur(r.cur)}</div><div style="height:${hT2}px;background:var(--ok)">${eur(r.t2)}</div></div>
+      <div class="bl"><span>${esc(op)} zdaj</span><span>T-2 ${esc(pk.name)}</span></div>
+    </div>
+    <div class="card"><div class="lbl">Kaj dobite pri T-2</div><ul>${pk.incl.map(x=>`<li>${esc(x)}</li>`).join("")}${t2.slice(1).filter(([n])=>!/vključen/.test(n)).map(([n])=>`<li>${esc(n)}</li>`).join("")}</ul>
+      <p class="note">Akcijska cena velja 24 mesecev. Priklop, odjavo in prenos številk uredimo mi.</p></div>
+    ${pen}
+  </div>`;
+}
+
+function fit(){
+  ["w1","w2"].forEach(w=>{const wr=$(w), sh=wr.firstElementChild; const s=wr.clientWidth/794; sh.style.transform=`scale(${s})`; wr.style.height=(1123*s)+"px";});
+}
+window.addEventListener("resize",()=>{if(tab==="prev")fit();});
+const TABS={edit:"tEdit",show:"tShow",prev:"tPrev",cheat:"tCheat"};
+let tab="edit";
+function showTab(t){
+  tab=t;
+  Object.entries(TABS).forEach(([v,b])=>{$(v).style.display=v===t?"block":"none";$(b).className=v===t?"on":"";});
+  document.querySelector(".bar").style.display=t==="cheat"?"none":"flex";
+  if(t==="prev") sheets(); if(t==="show") showView(); if(t==="cheat"&&!$("cheat").innerHTML) $("cheat").innerHTML=window.CHEAT;
+  window.scrollTo(0,0);
+}
+Object.entries(TABS).forEach(([v,b])=>$(b).onclick=()=>showTab(v));
+if(!window.CHEAT){ $("tCheat").remove(); delete TABS.cheat; }
+
+let downloads=null;
+if(window.claude&&window.claude.use){ window.claude.use("downloads").then(d=>{downloads=d;}).catch(()=>{}); }
+$("bPdf").onclick=async()=>{
+  const msg=$("msg"); msg.textContent="Pripravljam PDF …";
+  showTab("prev");
+  try{
+    const {jsPDF}=window.jspdf; const pdf=new jsPDF({unit:"mm",format:"a4"});
+    for(const [i,id] of ["p1","p2"].entries()){
+      const el=$(id), old=el.style.transform; el.style.transform="none";
+      const cv=await html2canvas(el,{scale:2,backgroundColor:"#ffffff",width:794,height:1123});
+      el.style.transform=old;
+      if(i) pdf.addPage();
+      pdf.addImage(cv.toDataURL("image/jpeg",0.85),"JPEG",0,0,210,297);
+    }
+    const blob=pdf.output("blob");
+    const name=`primerjava-${(S.cName||opName()).replace(/[^\wčšžČŠŽ-]+/g,"_")}.pdf`;
+    const file=new File([blob],name,{type:"application/pdf"});
+    if(!downloads && navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:"Primerjava T-2"}); msg.textContent="Poslano. Za tisk izberi aplikacijo tiskalnika."; }
+      catch(e){ msg.textContent=e&&e.name==="AbortError"?"Deljenje preklicano.":"Deljenje ni uspelo: "+(e.message||e); }
+    } else if(downloads){
+      try{await downloads.save({filename:name,data:blob}); msg.textContent="PDF je pripravljen – odpri ga v aplikaciji tiskalnika ali deli stranki.";}
+      catch(e){ msg.textContent=e&&e.code==="declined"?"Shranjevanje preklicano.":"Shranjevanje tu ni na voljo – spodaj je slika lista (dolg pritisk → shrani/deli)."; if(!(e&&e.code==="declined")) fallbackImg(); }
+    } else {
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      msg.textContent="PDF je shranjen v Prenose.";
+    }
+  }catch(e){ msg.textContent="Napaka pri pripravi PDF: "+(e.message||e); }
+};
+async function fallbackImg(){
+  for(const id of ["p1","p2"]){
+    const el=$(id), old=el.style.transform; el.style.transform="none";
+    const cv=await html2canvas(el,{scale:2,backgroundColor:"#ffffff",width:794,height:1123}); el.style.transform=old;
+    const im=new Image(); im.src=cv.toDataURL("image/png"); im.style.width="100%"; im.style.border="1px solid #ccc"; im.style.marginBottom="8px";
+    $("msg").appendChild(im);
+  }
+}
+
+const saved=load("state",null); if(saved) S=Object.assign(blank(),saved);
+render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
